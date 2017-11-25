@@ -15,8 +15,6 @@ const inputButtons = [
     [0, '.', '=', '÷']
 ];
 
-//如果是第一次输入的话，将默认值0替换为输入值
-let firstEnter = true;
 
 //如果完成一次计算后值为true，然后重新开始一次计算
 let isCompleteCalculate = false;
@@ -81,18 +79,17 @@ export default class Calculator extends Component {
         if (isCompleteCalculate) {
             isCompleteCalculate = false;
             this.setState({
-                inputValue: num
+                inputValue: num + ""
             })
             return;
         }
-        if(firstEnter) {
+        if(this.state.inputValue == 0) {
             this.setState({
-                inputValue : num
+                inputValue : num + ""
             })
-            firstEnter = false;
             return;
         }
-        let newValue = this.state.inputValue + "" + num;
+        let newValue = this.state.inputValue  + num;
         this.setState({
             inputValue : newValue
         })
@@ -102,24 +99,22 @@ export default class Calculator extends Component {
         switch (operate) {
             case '+':
             case '-':
+            case '.':
+            case '(':
+            case ')':
                 this.setState({
-                    selectedSymbol: operate,
-                    previousInputValue: this.state.inputValue,
-                    inputValue: 0
+                    inputValue: this.state.inputValue + operate
                 })
                 break;
             case '×':
                 this.setState({
-                    selectedSymbol: '*',
-                    previousInputValue: this.state.inputValue,
-                    inputValue: 0
+                    inputValue: this.state.inputValue + '*'
+                    
                 })
                 break;
             case '÷':
                 this.setState({
-                    selectedSymbol: '/',
-                    previousInputValue: this.state.inputValue,
-                    inputValue: 0
+                    inputValue: this.state.inputValue + '/'                    
                 })
                 break;
             case 'AC':
@@ -130,20 +125,28 @@ export default class Calculator extends Component {
                     resultValue: 0
                 })
                 break;
-            case '=':
-                let symbol = this.state.selectedSymbol,
-                    inputValue = this.state.inputValue,
-                    previousInputValue = this.state.previousInputValue;
-
-                if (!symbol) {
+            case '←':
+                if(typeof(this.state.inputValue) ==  undefined){
                     return;
                 }
-
+                if(this.state.inputValue == 0){
+                    return;
+                }
+                if(this.state.inputValue.length == 1){
+                    this.setState({
+                        inputValue: 0                                   
+                    })
+                    return;
+                }
                 this.setState({
-                    previousInputValue: 0,
-                    inputValue: previousInputValue + symbol + inputValue + "=",
-                    resultValue: eval(previousInputValue + symbol + inputValue),
-                    selectedSymbol: null
+                    inputValue: this.state.inputValue.slice(0,-1)                                   
+                })
+                break;
+            case '=':
+                console.log("inputValue:" + this.state.inputValue);
+                this.setState({
+                    inputValue: this.state.inputValue + "=",
+                    resultValue: eval(this.state.inputValue)
                 });
 
                 isCompleteCalculate = true;
