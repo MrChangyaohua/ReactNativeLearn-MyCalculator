@@ -25,10 +25,8 @@ export default class Calculator extends Component {
         super(props);
 
         this.state = {
-            previousInputValue: 0,
-            inputValue: 0,
-            resultValue: 0,
-            selectedSymbol: null
+            inputValue: '0',
+            resultValue: '0'
         }
     }
 
@@ -83,74 +81,93 @@ export default class Calculator extends Component {
             })
             return;
         }
-        if(this.state.inputValue == 0) {
+        if (this.state.inputValue === '0' && this.state.inputValue.length === 1) {
             this.setState({
-                inputValue : num + ""
+                inputValue: num + ""
             })
             return;
         }
-        let newValue = this.state.inputValue  + num;
+        let newValue = this.state.inputValue + num;
         this.setState({
-            inputValue : newValue
+            inputValue: newValue
         })
     }
 
     __handleOperateInput(operate) {
+
         switch (operate) {
             case '+':
+            case '×':
+            case '÷':
+                if (this.state.inputValue === '0') {
+                    return;
+                }
             case '-':
-            case '.':
             case '(':
             case ')':
-                this.setState({
-                    inputValue: this.state.inputValue + operate
-                })
-                break;
-            case '×':
-                this.setState({
-                    inputValue: this.state.inputValue + '*'
-                    
-                })
-                break;
-            case '÷':
-                this.setState({
-                    inputValue: this.state.inputValue + '/'                    
-                })
-                break;
-            case 'AC':
-                this.setState({
-                    selectedSymbol: null,
-                    previousInputValue: 0,
-                    inputValue: 0,
-                    resultValue: 0
-                })
-                break;
-            case '←':
-                if(typeof(this.state.inputValue) ==  undefined){
-                    return;
-                }
-                if(this.state.inputValue == 0){
-                    return;
-                }
-                if(this.state.inputValue.length == 1){
+                if (this.state.inputValue === '0') {
                     this.setState({
-                        inputValue: 0                                   
+                        inputValue: operate
+                    })
+                    return;
+                }
+            case '.':
+                if (isCompleteCalculate) {
+                    isCompleteCalculate = false;
+                    this.setState({
+                        inputValue: this.state.resultValue + operate
                     })
                     return;
                 }
                 this.setState({
-                    inputValue: this.state.inputValue.slice(0,-1)                                   
+                    inputValue: this.state.inputValue + operate
+                })
+                break;
+            case 'AC':
+                isCompleteCalculate = false;
+                
+                this.setState({
+                    inputValue: '0',
+                    resultValue: '0',
+                })
+                break;
+            case '←':
+                if (this.state.inputValue == 0) {
+                    return;
+                }
+                if (isCompleteCalculate) {
+                    return;
+                }
+                if (this.state.inputValue.length === 1) {
+                    this.setState({
+                        inputValue: '0'
+                    })
+                    return;
+                }
+                this.setState({
+                    inputValue: this.state.inputValue.slice(0, -1)
                 })
                 break;
             case '=':
-                console.log("inputValue:" + this.state.inputValue);
+                if (this.state.inputValue === '0') {
+                    return;
+                }
+                if (this.state.inputValue.search(/[+-×÷]/) == -1) {
+                    return;
+                }
+                let replaceInputValue = this.state.inputValue.replace(/×/g, '*');
+                replaceInputValue = replaceInputValue.replace(/÷/g, '/');
+                try {
+                    var result = eval(replaceInputValue)
+                } catch (e) {
+                    // alert(e.message)
+                    return;
+                }
                 this.setState({
                     inputValue: this.state.inputValue + "=",
-                    resultValue: eval(this.state.inputValue)
+                    resultValue: result
                 });
-
                 isCompleteCalculate = true;
-
                 break;
         }
     }
