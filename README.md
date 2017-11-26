@@ -1,2 +1,2 @@
 # ReactNativeLearn-MyCalculator
-ReactNative
+使用React Native技术实现一个简单的计算器功能，经测试可以在Android与IOS双平台上运行。
